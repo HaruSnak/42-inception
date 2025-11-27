@@ -1,344 +1,405 @@
 <img src="readme/inception.png" alt="inception" width="900"/>
 
----
+<div align="center">
 
 # Inception
-So here we are at the Inception project, a complete system administration exercise focused on containerization and Docker infrastructure. This project involves setting up a small multi-service infrastructure using **Docker Compose**, **NGINX with TLS**, **WordPress with php-fpm**, and **MariaDB**, all configured from scratch following best practices.
+### A Docker Infrastructure Project at 42 School
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+[![License][license-shield]][license-url]
+
+</div>
 
 ---
 
-## 📒 Index
+## 🇬🇧 English
 
-- [About](#about)
-    - [Implemented Features](#implemented-features)
-	- [Architecture](#architecture)
-	- [Technologies Used](#technologies-used)
+<details>
+<summary><b>📖 Click to expand/collapse English version</b></summary>
+
+### 📖 About
+
+**Inception** is a compulsory project for 42 School students. It consists of setting up a complete multi-service infrastructure using Docker Compose, NGINX with TLS, WordPress with php-fpm, and MariaDB, all configured from scratch following best practices.
+
+This project teaches:
+- Docker containerization and orchestration
+- Web server configuration with SSL/TLS
+- Database management and security
+- WordPress deployment and configuration
+- Network isolation and volume persistence
+- System administration skills
+
+### 🧠 Skills Learned
+
+By completing the Inception project, students develop essential skills in system administration and DevOps:
+
+- **Docker usage**: Building custom images, managing containers, and using Docker Compose for orchestration.
+- **NGINX configuration**: Setting up reverse proxy, SSL/TLS encryption, and security headers.
+- **WordPress deployment**: Installing and configuring WordPress with php-fpm, using WP-CLI.
+- **MariaDB setup**: Database initialization, user management, and secure connections.
+- **Volume management**: Persisting data with Docker volumes on the host filesystem.
+- **Network security**: Isolated networks, port management, and access control.
+- **Environment variables**: Managing configuration with .env files and secrets.
+- **Best practices**: Following Docker and security best practices, proper daemon management.
+
+## Approach
+The Inception project challenged me to build a complete infrastructure from the ground up. I focused on creating a secure, scalable setup with proper separation of concerns. The architecture uses NGINX as the entry point with TLS encryption, WordPress for the application layer, and MariaDB for data persistence, all orchestrated with Docker Compose.
+
+I implemented custom Dockerfiles for each service, ensuring no pre-built images were used, and configured everything to run in foreground mode for proper signal handling. Security was a priority, with TLS 1.2/1.3 only, environment variables for secrets, and isolated networks.
+
+The setup includes automated initialization scripts, volume persistence, and comprehensive error handling. This project demonstrates real-world system administration skills applicable to modern DevOps practices.
+
+### **Features**
+
+**Custom Docker Images:** All services built from Debian Bullseye without using DockerHub pre-built images.
+
+**TLS Encryption:** NGINX configured with self-signed SSL certificates supporting only TLS 1.2 and 1.3.
+
+**WordPress Integration:** Automated installation and configuration using WP-CLI, with two user accounts.
+
+**Database Security:** MariaDB with secure user management, root password protection, and isolated access.
+
+**Volume Persistence:** Data stored on host at /home/haru/data/ for both WordPress files and database.
+
+**Network Isolation:** All services communicate on a custom bridge network, with NGINX as the sole entry point.
+
+### **Additional Features:**
+
+**Auto-restart:** Containers configured to restart automatically on crash.
+
+**Security Headers:** X-Frame-Options, X-Content-Type-Options, X-XSS-Protection in NGINX.
+
+**Static File Caching:** Optimized caching for CSS, JS, and images.
+
+**Environment Variables:** All sensitive data managed through .env file and secrets.
+
+### 📋 Table of Contents
+
+- [Features](#features)
 - [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
 - [Testing](#testing)
-- [Development](#development)
-  - [File Structure](#file-structure)
-  - [Diagram Architecture](#diagram-architecture)
-- [Notes](#notes)
 - [Credits](#credits)
 
----
+<a name="features"></a>
 
-## About
+### ✨ Features
 
-This is a solo project completed as part of the 42 School curriculum. Inception challenges students to build a containerized infrastructure from the ground up, emphasizing Docker best practices, security, and system administration skills.
+- **Complete infrastructure** with NGINX, WordPress, and MariaDB
+- **TLS 1.2/1.3 encryption** with self-signed certificates
+- **Custom Docker images** built from Debian Bullseye
+- **Volume persistence** for data durability
+- **Isolated network** for secure inter-container communication
+- **Automated setup** with Docker Compose and initialization scripts
+- **Security best practices** with environment variables and secrets
 
-The project demonstrates proficiency in:
-- **Docker containerization** : Creating custom Docker images without using pre-built solutions
-- **Service orchestration** : Managing multiple services with Docker Compose
-- **Network configuration** : Setting up isolated networks and secure communications
-- **TLS/SSL encryption** : Implementing HTTPS with TLSv1.2/1.3
-- **WordPress deployment** : Installing and configuring WordPress with php-fpm
-- **Database management** : Setting up MariaDB with secure user management
-- **Volume persistence** : Managing data persistence with Docker volumes
+<a name="installation"></a>
 
-All services are built from Debian Bullseye base images, configured with custom Dockerfiles, and orchestrated to work together seamlessly in an isolated Docker network.
+### 🚀 Installation
 
----
-
-## Implemented Features
-
-### Mandatory Part
-
-#### Docker Infrastructure
-- **Custom Docker Images** : All images built from Debian Bullseye (no DockerHub pre-built images)
-- **Docker Compose** : Complete orchestration of all services
-- **Isolated Network** : Custom bridge network for inter-container communication
-- **Volume Persistence** : Two volumes for database and WordPress files mounted on host
-- **Auto-restart** : Containers configured to restart automatically on crash
-
-#### NGINX Container
-- **TLS 1.2/1.3 Only** : Secure HTTPS configuration with self-signed SSL certificates
-- **Reverse Proxy** : Single entry point to infrastructure via port 443
-- **PHP-FPM Integration** : FastCGI configuration for WordPress
-- **Security Headers** : X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
-- **Static File Caching** : Optimized caching for CSS, JS, and images
-
-#### WordPress Container
-- **PHP-FPM 7.4** : Configured without NGINX, pure FastCGI processing
-- **WP-CLI Integration** : Automated WordPress installation and configuration
-- **Two Users** : Administrator (webmaster) and regular user
-- **Database Connection** : Automated setup and connection to MariaDB
-- **Volume Mounting** : WordPress files persisted on host at `/home/shmoreno/data/wordpress`
-
-#### MariaDB Container
-- **Database Initialization** : Automated database and user creation
-- **Secure Configuration** : Root password protection, remote access control
-- **Data Persistence** : Database files stored on host at `/home/shmoreno/data/mariadb`
-- **Network Isolation** : Only accessible from WordPress container
-
-### Security Features
-- **No Hardcoded Passwords** : All credentials stored in environment variables and secrets
-- **Environment Variables** : `.env` file for configuration
-- **Secrets Management** : Separate files for sensitive credentials
-- **No Hacky Patches** : Proper daemon management (no `tail -f`, `sleep infinity`)
-- **PID 1 Best Practices** : Foreground processes with proper signal handling
-
----
-
-## Architecture
-
-The infrastructure follows a microservices pattern with three isolated containers:
-
-```
-Host Machine (shmoreno.42.fr:443)
-         ↓
-    [NGINX Container]
-    Port 443 (HTTPS)
-    TLSv1.2/1.3
-         ↓
-    [WordPress Container]
-    Port 9000 (PHP-FPM)
-         ↓
-    [MariaDB Container]
-    Port 3306 (MySQL)
-```
-
-- **Entry Point** : NGINX is the sole external-facing service on port 443
-- **WordPress** : Processes PHP requests from NGINX via FastCGI
-- **MariaDB** : Provides database backend for WordPress
-- **Network** : All services communicate on `inception_network` bridge
-- **Volumes** : Data persisted on host filesystem for database and WordPress files
-
----
-
-## Technologies Used
-
-- **Containerization** : Docker, Docker Compose
-- **Web Server** : NGINX with SSL/TLS
-- **Application** : WordPress 6.x, PHP 7.4-FPM
-- **Database** : MariaDB 10.x
-- **OS** : Debian Bullseye
-- **Tools** : WP-CLI, OpenSSL, Bash scripting
-- **Security** : TLSv1.2/1.3, Environment variables, Docker secrets
-
----
-
-## Installation
-
-### Prerequisites
-- Docker and Docker Compose installed
-- Sudo privileges for volume directory creation
-- At least 2GB free disk space
-
-### Setup
 ```bash
-# Clone this repository
-$ git clone https://github.com/HaruSnak/Inception
-$ cd Inception
+# Clone the repository
+git clone https://github.com/HaruSnak/42-inception
+cd 42-inception
 
-# Configure your domain in /etc/hosts
-$ sudo bash srcs/requirements/tools/setup_hosts.sh
-# Or manually add: 127.0.0.1 shmoreno.42.fr
+# Configure domain in /etc/hosts
+sudo bash srcs/requirements/tools/setup_hosts.sh
 
-# Build and start all services
-$ make all
-
-# Access WordPress
-# Open your browser: https://shmoreno.42.fr
-# (Accept the self-signed certificate warning)
+# Build and start services
+make all
 ```
 
 ### Environment Variables
 The `.env` file in `srcs/` contains all configuration:
 ```env
-DOMAIN_NAME=shmoreno.42.fr
+DOMAIN_NAME=haru.42.fr
 MYSQL_ROOT_PASSWORD=rootpassword123
 MYSQL_DATABASE=wordpress
 MYSQL_USER=wpuser
 MYSQL_PASSWORD=userpassword123
 WP_ADMIN_USER=webmaster
 WP_ADMIN_PASSWORD=adminpass123
-WP_ADMIN_EMAIL=webmaster@shmoreno.42.fr
+WP_ADMIN_EMAIL=webmaster@haru.42.fr
 WP_USER=normaluser
-WP_USER_EMAIL=user@shmoreno.42.fr
+WP_USER_EMAIL=user@haru.42.fr
 WP_USER_PASSWORD=userpass123
 ```
 
----
+<a name="usage"></a>
 
-## Testing
+### 💻 Usage
 
-### Service Verification
+Access WordPress at https://haru.42.fr (accept self-signed certificate warning).
+
+Admin login: webmaster / adminpass123
+
+### 📂 Project Structure
+
+```
+42-inception/
+├── Makefile                    # Build script
+├── README.md                   # This file
+├── README-Template.md          # Template for README
+├── srcs/
+│   ├── .env                    # Environment variables
+│   ├── docker-compose.yml      # Service orchestration
+│   └── requirements/
+│       ├── mariadb/
+│       │   ├── Dockerfile
+│       │   ├── conf/
+│       │   └── tools/
+│       ├── nginx/
+│       │   ├── Dockerfile
+│       │   ├── conf/
+│       │   └── tools/
+│       └── wordpress/
+│           ├── Dockerfile
+│           ├── conf/
+│           └── tools/
+└── secrets/                    # Sensitive credentials
+```
+
+<a name="testing"></a>
+
+### 🧪 Testing
+
 ```bash
-# Check all containers are running
-$ docker ps
+# Check containers
+docker ps
 
-# Expected output:
-# - nginx (port 443)
-# - wordpress (port 9000)
-# - mariadb (port 3306)
+# View logs
+make logs
 
-# Check container logs
-$ make logs
-
-# Verify volumes
-$ ls -la /home/shmoreno/data/wordpress
-$ ls -la /home/shmoreno/data/mariadb
+# Test HTTPS
+curl -k https://haru.42.fr
 ```
 
-### Functional Tests
+### 👨‍🎓 Note
+<p align="left">
+    <img src="https://image.noelshack.com/fichiers/2024/11/2/1710273269-100.png"
+         alt="100/100" width="180" height="184">
+</p>
+
+<a name="credits"></a>
+
+### 📖 Credits
+
+- **42 School**: Curriculum project
+- **Docker Documentation**: [docs.docker.com](https://docs.docker.com/)
+- **NGINX Docs**: [nginx.org](https://nginx.org/en/docs/)
+- **WordPress CLI**: [wp-cli.org](https://wp-cli.org/)
+- **MariaDB Docs**: [mariadb.org](https://mariadb.org/documentation/)
+
+### 📄 License
+
+This project is licensed under the **MIT License**.
+
+</details>
+
+---
+
+## 🇫🇷 Français
+
+<details>
+<summary><b>📖 Cliquez pour développer/réduire la version française</b></summary>
+
+### 📖 À propos
+
+**Inception** est un projet obligatoire pour les étudiants de l'école 42. Il consiste à mettre en place une infrastructure multi-services complète utilisant Docker Compose, NGINX avec TLS, WordPress avec php-fpm et MariaDB, tout configuré à partir de zéro en suivant les meilleures pratiques.
+
+Ce projet enseigne :
+- La conteneurisation et l'orchestration Docker
+- La configuration de serveur web avec SSL/TLS
+- La gestion et la sécurité des bases de données
+- Le déploiement et la configuration de WordPress
+- L'isolation réseau et la persistance des volumes
+- Les compétences en administration système
+
+### 🧠 Compétences acquises
+
+En complétant le projet Inception, les étudiants développent des compétences essentielles en administration système et DevOps :
+
+- **Utilisation de Docker** : Construction d'images personnalisées, gestion des conteneurs et utilisation de Docker Compose pour l'orchestration.
+- **Configuration NGINX** : Mise en place de proxy inverse, chiffrement SSL/TLS et en-têtes de sécurité.
+- **Déploiement WordPress** : Installation et configuration de WordPress avec php-fpm, utilisant WP-CLI.
+- **Configuration MariaDB** : Initialisation de base de données, gestion des utilisateurs et connexions sécurisées.
+- **Gestion des volumes** : Persistance des données avec des volumes Docker sur le système de fichiers hôte.
+- **Sécurité réseau** : Réseaux isolés, gestion des ports et contrôle d'accès.
+- **Variables d'environnement** : Gestion de la configuration avec des fichiers .env et secrets.
+- **Meilleures pratiques** : Suivre les meilleures pratiques Docker et de sécurité, gestion appropriée des démons.
+
+## Approche
+Le projet Inception m'a défié à construire une infrastructure complète à partir de zéro. Je me suis concentré sur la création d'une configuration sécurisée et évolutive avec une séparation appropriée des préoccupations. L'architecture utilise NGINX comme point d'entrée avec chiffrement TLS, WordPress pour la couche application et MariaDB pour la persistance des données, le tout orchestré avec Docker Compose.
+
+J'ai implémenté des Dockerfiles personnalisés pour chaque service, en m'assurant qu'aucune image pré-construite n'était utilisée, et configuré tout pour fonctionner en mode avant-plan pour une gestion appropriée des signaux. La sécurité était une priorité, avec TLS 1.2/1.3 uniquement, variables d'environnement pour les secrets et réseaux isolés.
+
+La configuration inclut des scripts d'initialisation automatisés, persistance des volumes et gestion d'erreurs complète. Ce projet démontre des compétences en administration système du monde réel applicables aux pratiques DevOps modernes.
+
+### **Fonctionnalités**
+
+**Images Docker personnalisées :** Tous les services construits à partir de Debian Bullseye sans utiliser d'images pré-construites DockerHub.
+
+**Chiffrement TLS :** NGINX configuré avec certificats SSL auto-signés ne supportant que TLS 1.2 et 1.3.
+
+**Intégration WordPress :** Installation et configuration automatisées utilisant WP-CLI, avec deux comptes utilisateurs.
+
+**Sécurité de base de données :** MariaDB avec gestion sécurisée des utilisateurs, protection du mot de passe root et accès isolé.
+
+**Persistance des volumes :** Données stockées sur l'hôte à /home/haru/data/ pour les fichiers WordPress et la base de données.
+
+**Isolation réseau :** Tous les services communiquent sur un réseau bridge personnalisé, avec NGINX comme seul point d'entrée.
+
+### **Fonctionnalités supplémentaires :**
+
+**Redémarrage automatique :** Conteneurs configurés pour redémarrer automatiquement en cas de crash.
+
+**En-têtes de sécurité :** X-Frame-Options, X-Content-Type-Options, X-XSS-Protection dans NGINX.
+
+**Cache de fichiers statiques :** Cache optimisé pour CSS, JS et images.
+
+**Variables d'environnement :** Toutes les données sensibles gérées via fichier .env et secrets.
+
+### 📋 Table des matières
+
+- [Caractéristiques](#caractéristiques)
+- [Installation](#installation-1)
+- [Utilisation](#utilisation)
+- [Structure du projet](#structure-du-projet)
+- [Test](#test)
+- [Crédits](#crédits-1)
+
+<a name="caractéristiques"></a>
+
+### ✨ Caractéristiques
+
+- **Infrastructure complète** avec NGINX, WordPress et MariaDB
+- **Chiffrement TLS 1.2/1.3** avec certificats auto-signés
+- **Images Docker personnalisées** construites à partir de Debian Bullseye
+- **Persistance des volumes** pour la durabilité des données
+- **Réseau isolé** pour une communication inter-conteneurs sécurisée
+- **Configuration automatisée** avec Docker Compose et scripts d'initialisation
+- **Meilleures pratiques de sécurité** avec variables d'environnement et secrets
+
+<a name="installation-1"></a>
+
+### 🚀 Installation
+
 ```bash
-# Test HTTPS connection
-$ curl -k https://shmoreno.42.fr
+# Cloner le dépôt
+git clone https://github.com/HaruSnak/42-inception
+cd 42-inception
 
-# Test TLS version (should only accept 1.2 and 1.3)
-$ openssl s_client -connect shmoreno.42.fr:443 -tls1_1  # Should fail
-$ openssl s_client -connect shmoreno.42.fr:443 -tls1_2  # Should succeed
+# Configurer le domaine dans /etc/hosts
+sudo bash srcs/requirements/tools/setup_hosts.sh
 
-# Test database connection from WordPress container
-$ docker exec wordpress mysqladmin ping -hmariadb -uwpuser -puserpassword123
+# Construire et démarrer les services
+make all
 ```
 
-### Manual Tests
-1. **WordPress Access** : Navigate to https://shmoreno.42.fr
-2. **Login** : Use `webmaster` / `adminpass123` for admin access
-3. **Create Post** : Verify database persistence
-4. **Restart Test** : Run `docker restart mariadb` and verify WordPress still works
-5. **Volume Persistence** : Run `make down && make up`, data should persist
-
----
-
-## Development
-
-### File Structure
-
-```
-.
-└── 📁Inception
-    ├── Makefile
-    ├── README.md
-    └── 📁secrets
-        ├── credentials.txt
-        ├── db_password.txt
-        └── db_root_password.txt
-    └── 📁srcs
-        ├── .env
-        ├── docker-compose.yml
-        └── 📁requirements
-            └── 📁mariadb
-                ├── Dockerfile
-                └── 📁conf
-                    └── 50-server.cnf
-                └── 📁tools
-                    └── entrypoint.sh
-            └── 📁nginx
-                ├── Dockerfile
-                └── 📁conf
-                    └── nginx.conf
-                └── 📁tools
-                    └── entrypoint.sh
-            └── 📁wordpress
-                ├── Dockerfile
-                └── 📁conf
-                    └── www.conf
-                └── 📁tools
-                    └── entrypoint.sh
-            └── 📁tools
-                └── setup_hosts.sh
+### Variables d'environnement
+Le fichier `.env` dans `srcs/` contient toute la configuration :
+```env
+DOMAIN_NAME=haru.42.fr
+MYSQL_ROOT_PASSWORD=rootpassword123
+MYSQL_DATABASE=wordpress
+MYSQL_USER=wpuser
+MYSQL_PASSWORD=userpassword123
+WP_ADMIN_USER=webmaster
+WP_ADMIN_PASSWORD=adminpass123
+WP_ADMIN_EMAIL=webmaster@haru.42.fr
+WP_USER=normaluser
+WP_USER_EMAIL=user@haru.42.fr
+WP_USER_PASSWORD=userpass123
 ```
 
-### Diagram Architecture
+<a name="utilisation"></a>
+
+### 💻 Utilisation
+
+Accédez à WordPress sur https://haru.42.fr (acceptez l'avertissement de certificat auto-signé).
+
+Connexion admin : webmaster / adminpass123
+
+<a name="structure-du-projet"></a>
+
+### 📂 Structure du projet
 
 ```
-┌─────────────────────────────────────────────────────┐
-│              Host Machine (shmoreno)                 │
-│  ┌─────────────────────────────────────────────┐   │
-│  │         /home/shmoreno/data/                 │   │
-│  │  ├── wordpress/  (Volume)                    │   │
-│  │  └── mariadb/    (Volume)                    │   │
-│  └─────────────────────────────────────────────┘   │
-│                                                      │
-│  ┌─────────────────────────────────────────────┐   │
-│  │      Docker Network (inception_network)      │   │
-│  │                                               │   │
-│  │  ┌──────────────┐                            │   │
-│  │  │    NGINX     │ :443 (HTTPS TLS 1.2/1.3)  │◄──┼─── Internet
-│  │  │  Container   │                            │   │
-│  │  └──────┬───────┘                            │   │
-│  │         │ FastCGI (9000)                     │   │
-│  │         ↓                                     │   │
-│  │  ┌──────────────┐                            │   │
-│  │  │  WordPress   │                            │   │
-│  │  │  Container   │ PHP-FPM                    │   │
-│  │  │              │                            │   │
-│  │  └──────┬───────┘                            │   │
-│  │         │ MySQL (3306)                       │   │
-│  │         ↓                                     │   │
-│  │  ┌──────────────┐                            │   │
-│  │  │   MariaDB    │                            │   │
-│  │  │  Container   │                            │   │
-│  │  └──────────────┘                            │   │
-│  └─────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────┘
+42-inception/
+├── Makefile                    # Script de build
+├── README.md                   # Ce fichier
+├── README-Template.md          # Template pour README
+├── srcs/
+│   ├── .env                    # Variables d'environnement
+│   ├── docker-compose.yml      # Orchestration des services
+│   └── requirements/
+│       ├── mariadb/
+│       │   ├── Dockerfile
+│       │   ├── conf/
+│       │   └── tools/
+│       ├── nginx/
+│       │   ├── Dockerfile
+│       │   ├── conf/
+│       │   └── tools/
+│       └── wordpress/
+│           ├── Dockerfile
+│           ├── conf/
+│           └── tools/
+└── secrets/                    # Identifiants sensibles
 ```
 
----
+<a name="test"></a>
 
-## Notes
+### 🧪 Test
 
-### Important Considerations
-- **Domain Configuration** : Ensure `shmoreno.42.fr` points to `127.0.0.1` in `/etc/hosts`
-- **SSL Certificates** : Self-signed certificates are generated automatically during build
-- **Data Persistence** : Volumes must be created in `/home/shmoreno/data/` before starting
-- **No Latest Tag** : All images specify exact versions or use base Debian
-- **PID 1 Compliance** : All services run in foreground mode for proper Docker behavior
-
-### Common Issues
-- **Permission Denied** : Run `make fclean` with sudo if volume cleanup fails
-- **Port 443 Busy** : Check if another service is using port 443 (`sudo lsof -i :443`)
-- **Database Connection Failed** : Wait 10-15 seconds after `make up` for MariaDB initialization
-- **SSL Warning** : Browser will show warning for self-signed cert - this is expected
-
-### Makefile Commands
 ```bash
-make all      # Build and start all services
-make build    # Build Docker images
-make up       # Start containers
-make down     # Stop containers
-make clean    # Stop and remove containers/images
-make fclean   # Full cleanup including volumes
-make re       # Rebuild everything from scratch
-make logs     # Follow container logs
-make status   # Show container status
+# Vérifier les conteneurs
+docker ps
+
+# Voir les logs
+make logs
+
+# Tester HTTPS
+curl -k https://haru.42.fr
 ```
 
+### 👨‍🎓 Note
+<p align="left">
+    <img src="https://image.noelshack.com/fichiers/2024/11/2/1710273269-100.png"
+         alt="100/100" width="180" height="184">
+</p>
+
+<a name="crédits-1"></a>
+
+### 📖 Crédits
+
+- **École 42** : Projet du curriculum
+- **Documentation Docker** : [docs.docker.com](https://docs.docker.com/)
+- **Docs NGINX** : [nginx.org](https://nginx.org/en/docs/)
+- **WordPress CLI** : [wp-cli.org](https://wp-cli.org/)
+- **Docs MariaDB** : [mariadb.org](https://mariadb.org/documentation/)
+
+### 📄 Licence
+
+Ce projet est sous licence **MIT**.
+
+</details>
+
 ---
 
-## Credits
-
-Project developed as part of 42 School curriculum.
-
-### Resources
-- [Docker Documentation](https://docs.docker.com/)
-- [Docker Compose Reference](https://docs.docker.com/compose/)
-- [NGINX Documentation](https://nginx.org/en/docs/)
-- [WordPress CLI](https://wp-cli.org/)
-- [MariaDB Documentation](https://mariadb.org/documentation/)
-- [Debian Packages](https://packages.debian.org/)
-
-### License
-This project is licensed under the MIT License.
-
----
-
-[contributors-shield]: https://img.shields.io/github/contributors/HaruSnak/Inception.svg?style=for-the-badge
-[contributors-url]: https://github.com/HaruSnak/Inception/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/HaruSnak/Inception.svg?style=for-the-badge
-[forks-url]: https://github.com/HaruSnak/Inception/network/members
-[stars-shield]: https://img.shields.io/github/stars/HaruSnak/Inception.svg?style=for-the-badge
-[stars-url]: https://github.com/HaruSnak/Inception/stargazers
-[issues-shield]: https://img.shields.io/github/issues/HaruSnak/Inception.svg?style=for-the-badge
-[issues-url]: https://github.com/HaruSnak/Inception/issues
+[contributors-shield]: https://img.shields.io/github/contributors/HaruSnak/42-inception.svg?style=for-the-badge
+[contributors-url]: https://github.com/HaruSnak/42-inception/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/HaruSnak/42-inception.svg?style=for-the-badge
+[forks-url]: https://github.com/HaruSnak/42-inception/network/members
+[stars-shield]: https://img.shields.io/github/stars/HaruSnak/42-inception.svg?style=for-the-badge
+[stars-url]: https://github.com/HaruSnak/42-inception/stargazers
+[issues-shield]: https://img.shields.io/github/issues/HaruSnak/42-inception.svg?style=for-the-badge
+[issues-url]: https://github.com/HaruSnak/42-inception/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/shany-moreno-5a863b2aa
+[license-shield]: https://img.shields.io/github/license/HaruSnak/42-inception.svg?style=for-the-badge
+[license-url]: https://github.com/HaruSnak/42-inception/blob/master/LICENSE
